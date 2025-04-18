@@ -8,9 +8,9 @@ const {
 } = require('../controllers/expenseController');
 const protect = require('../middleware/authMiddleware');
 
-router.post('/', createExpense);
-router.get('/', getExpenses);
-router.put('/:id', updateExpense);
-router.delete('/:id', deleteExpense);
+router.post('/', protect, createExpense);
+router.get('/', protect, getExpenses);
+router.put('/:id', protect, updateExpense);
+router.delete('/:id', protect, deleteExpense);
 
 module.exports = router;
