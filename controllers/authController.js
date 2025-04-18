@@ -14,9 +14,14 @@ exports.registerUser = async (req, res) => {
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
     const user = await User.create({ name, email, password });
-    const token = generateToken(user._id);
 
-    res.status(201).json({ token });
+    const newUser = {
+      id: user._id,
+      name: user.name,
+      email: user.email
+    };
+    
+    res.status(201).json({ message: 'User registered successfully', newUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
