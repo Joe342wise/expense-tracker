@@ -92,7 +92,7 @@ exports.getExpenseCSV = async (req, res) => {
         console.error(err);
         res.status(500).send('Error downloading the file');
       }
-      // fs.unlinkSync(filePath); // Delete the file after download
+      fs.unlinkSync(filePath); // Delete the file after download
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
