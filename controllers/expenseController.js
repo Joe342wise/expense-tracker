@@ -59,25 +59,64 @@ exports.getExpenses = async (req, res) => {
 };
 
 // Get monthly summary of expenses for logged-in user
+// exports.getMonthlySummary = async (req, res) => {
+//   try {
+//     const summary = await Expense.aggregate([
+//       { $match: { user: req.user._id } },
+//       {
+//         $group: {
+//           _id: { $month: '$date' },
+//           totalSpent: { $sum: '$amount' },
+//           count: { $sum: 1 }
+//         }
+//       },
+//       { $sort: { '_id': 1 } }
+//     ]);
+
+//     res.json(summary);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 exports.getMonthlySummary = async (req, res) => {
   try {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
     const summary = await Expense.aggregate([
-      { $match: { user: req.user._id } },
+      {
+        $match: {
+          user: req.user._id
+        }
+      },
       {
         $group: {
-          _id: { $month: '$date' },
+          _id: { month: { $month: '$date' }, year: { $year: '$date' } },
           totalSpent: { $sum: '$amount' },
           count: { $sum: 1 }
         }
       },
-      { $sort: { '_id': 1 } }
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 }
+      }
     ]);
 
-    res.json(summary);
+    const formatted = summary.map(item => ({
+      month: monthNames[item._id.month - 1],
+      year: item._id.year,
+      totalSpent: item.totalSpent,
+      count: item.count
+    }));
+
+    res.json(formatted);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getExpenseCSV = async (req, res) => {
   try {
