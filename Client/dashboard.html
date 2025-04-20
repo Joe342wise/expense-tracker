@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Dashboard</title>
+  <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+  <header>
+    <h1>Expense Tracker Dashboard</h1>
+    <button id="logout-btn">Logout</button>
+  </header>
+
+  <main>
+    <section id="summary">
+      <h2>Monthly Summary</h2>
+      <div id="monthly-summary"></div>
+
+      <h2>Category Summary</h2>
+      <div id="category-summary"></div>
+    </section>
+
+    <section id="add-expense">
+      <h2>Add Expense</h2>
+      <form id="expense-form">
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="number" id="amount" placeholder="Amount" required>
+        <input type="text" id="category" placeholder="Category" required>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <section id="expenses-list">
+      <h2>Your Expenses</h2>
+      <ul id="expenses"></ul>
+    </section>
+  </main>
+
+  <script src="JS/expenses.js"></script>
+</body>
+</html>
