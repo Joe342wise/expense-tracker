@@ -117,13 +117,64 @@ exports.getMonthlySummary = async (req, res) => {
   }
 };
 
-
-exports.getExpenseCSV = async (req, res) => {
+exports.getExpenseCSVMonthly = async (req, res) => {
   try {
     const expenses = await expenseCSV.getMonthlySummary(req.user._id);
     if (!expenses.length) return res.status(404).json({ error: 'No expenses found' });
 
-    const filePath = path.join(__dirname, '../uploads/expenses.csv');
+    const filePath = path.join(__dirname, '../uploads/monthly-expenses.csv');
+    await expenseCSV.writeCSVFile(filePath, expenses);
+
+    res.download(filePath, 'expenses.csv', (err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error downloading the file');
+      }
+      fs.unlinkSync(filePath); // Delete the file after download
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+exports.getCategorySummary = async (req, res) => {
+  try {
+    const summary = await Expense.aggregate([
+      {
+        $match: {
+          user: req.user._id
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          totalSpent: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { totalSpent: -1 }
+      }
+    ]);
+
+    const formatted = summary.map(item => ({
+      category: item._id,
+      totalSpent: item.totalSpent,
+      count: item.count
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getExpenseCSVCategory = async (req, res) => {
+  try {
+    const expenses = await expenseCSV.getCategorySummary(req.user._id);
+    if (!expenses.length) return res.status(404).json({ error: 'No expenses found' });
+
+    const filePath = path.join(__dirname, '../uploads/category-expenses.csv');
     await expenseCSV.writeCSVFile(filePath, expenses);
 
     res.download(filePath, 'expenses.csv', (err) => {

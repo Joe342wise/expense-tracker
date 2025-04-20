@@ -62,6 +62,37 @@ exports.getMonthlySummary = async (userId) => {
   }
 };
 
+exports.getCategorySummary = async (userId) => {
+  try {
+    const summary = await Expense.aggregate([
+      {
+        $match: {
+          user: userId
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          totalSpent: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { totalSpent: -1 }
+      }
+    ]);
+
+    const formatted = summary.map(item => ({
+      category: item._id,
+      totalSpent: item.totalSpent,
+      count: item.count
+    }));
+
+    return(formatted);
+  } catch (err) {
+    throw new Error('Error fetching category summary: ' + err.message);
+  }
+};
 
 exports.getCSVHeader = (data) => {
   const headers = Object.keys(data[0]);
